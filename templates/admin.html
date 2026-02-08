@@ -1,0 +1,536 @@
+{% extends 'layout.html' %}
+
+{% block title %}Administrator Dashboard - GeoResource Explorer{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="bg-gradient py-5 mb-5">
+    <div class="container">
+        <h1 class="display-5 fw-bold mb-2">
+            <i class="fas fa-cogs text-light me-3"></i>Administrator Dashboard
+        </h1>
+        <p class="lead text-white-50">Manage minerals, deposits, users, and system settings</p>
+    </div>
+</div>
+
+<div class="container">
+    <!-- Admin Stats -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-3">
+            <div class="card border-left-primary h-100">
+                <div class="card-body">
+                    <div class="text-primary fw-bold mb-2">
+                        <i class="fas fa-gem"></i> Total Minerals
+                    </div>
+                    <div class="display-6 fw-bold">2,847</div>
+                    <small class="text-muted">+12% this month</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-left-success h-100">
+                <div class="card-body">
+                    <div class="text-success fw-bold mb-2">
+                        <i class="fas fa-users"></i> Active Users
+                    </div>
+                    <div class="display-6 fw-bold">324</div>
+                    <small class="text-muted">+8 new today</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-left-warning h-100">
+                <div class="card-body">
+                    <div class="text-warning fw-bold mb-2">
+                        <i class="fas fa-database"></i> Database Size
+                    </div>
+                    <div class="display-6 fw-bold">2.3 GB</div>
+                    <small class="text-muted">Last backup: today</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-left-info h-100">
+                <div class="card-body">
+                    <div class="text-info fw-bold mb-2">
+                        <i class="fas fa-triangle-exclamation"></i> Issues
+                    </div>
+                    <div class="display-6 fw-bold">3</div>
+                    <small class="text-muted">All reviewed</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Nav Tabs -->
+    <ul class="nav nav-tabs nav-fill border-bottom mb-4" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="minerals-tab" data-bs-toggle="tab" data-bs-target="#mineralsPanel" type="button">
+                <i class="fas fa-gem"></i> Manage Minerals
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="deposits-tab" data-bs-toggle="tab" data-bs-target="#depositsPanel" type="button">
+                <i class="fas fa-diamond"></i> Manage Deposits
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="users-tab" data-bs-toggle="tab" data-bs-target="#usersPanel" type="button">
+                <i class="fas fa-users"></i> Users
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="geospatial-tab" data-bs-toggle="tab" data-bs-target="#geospatialPanel" type="button">
+                <i class="fas fa-map"></i> QGIS Data Import
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="learning-tab" data-bs-toggle="tab" data-bs-target="#learningPanel" type="button">
+                <i class="fas fa-book"></i> Learning Content
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="system-tab" data-bs-toggle="tab" data-bs-target="#systemPanel" type="button">
+                <i class="fas fa-cog"></i> System
+            </button>
+        </li>
+    </ul>
+
+    <!-- Tab Content -->
+    <div class="tab-content">
+        <!-- Minerals Management -->
+        <div class="tab-pane fade show active" id="mineralsPanel">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light border-bottom">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <h5 class="mb-0">
+                                <i class="fas fa-plus-circle"></i> Add New Mineral
+                            </h5>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{{ url_for('admin_upload') }}" enctype="multipart/form-data" class="needs-validation" novalidate>
+                        <!-- CSRF Token (Required for security) -->
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+                        <div class="row g-3">
+                            <!-- Basic Info -->
+                            <div class="col-md-6">
+                                <label for="mineralName" class="form-label fw-bold">
+                                    <i class="fas fa-gem text-primary"></i> Mineral Name
+                                </label>
+                                <input type="text" class="form-control form-control-lg" id="mineralName" name="name" 
+                                       placeholder="e.g., Gold, Quartz" required>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="mineralFormula" class="form-label fw-bold">
+                                    <i class="fas fa-flask-vial text-primary"></i> Chemical Formula
+                                </label>
+                                <input type="text" class="form-control form-control-lg" id="mineralFormula" name="formula" 
+                                       placeholder="e.g., Au, SiO₂">
+                            </div>
+
+                            <!-- Properties -->
+                            <div class="col-md-6">
+                                <label for="mineralProperties" class="form-label fw-bold">
+                                    <i class="fas fa-microscope text-primary"></i> Physical Properties
+                                </label>
+                                <textarea class="form-control" id="mineralProperties" name="properties" 
+                                          placeholder="Hardness, color, density, crystal system..." rows="4"></textarea>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="mineralUses" class="form-label fw-bold">
+                                    <i class="fas fa-industry text-primary"></i> Primary Uses
+                                </label>
+                                <textarea class="form-control" id="mineralUses" name="uses" 
+                                          placeholder="Industrial applications, uses..." rows="4"></textarea>
+                            </div>
+
+                            <!-- Economic & Location -->
+                            <div class="col-md-6">
+                                <label for="mineralEconomic" class="form-label fw-bold">
+                                    <i class="fas fa-coins text-primary"></i> Economic Importance
+                                </label>
+                                <textarea class="form-control" id="mineralEconomic" name="economic" 
+                                          placeholder="Economic value and significance..." rows="3"></textarea>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label for="mineralCountries" class="form-label fw-bold">
+                                    <i class="fas fa-globe text-primary"></i> Major Countries
+                                </label>
+                                <input type="text" class="form-control" id="mineralCountries" name="countries" 
+                                       placeholder="Comma-separated: China, Russia, USA...">
+                                <small class="text-muted">Separate multiple countries with commas</small>
+                            </div>
+
+                            <!-- Image Upload -->
+                            <div class="col-md-12">
+                                <label for="mineralImage" class="form-label fw-bold">
+                                    <i class="fas fa-image text-primary"></i> Mineral Image
+                                </label>
+                                <div class="input-group">
+                                    <input type="file" class="form-control" id="mineralImage" name="image" 
+                                           accept="image/*">
+                                    <span class="input-group-text">PNG, JPG, GIF (Max 5MB)</span>
+                                </div>
+                            </div>
+
+                            <!-- Submit Buttons -->
+                            <div class="col-md-12">
+                                <div class="d-flex gap-2">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save"></i> Add Mineral
+                                    </button>
+                                    <button type="reset" class="btn btn-outline-secondary">
+                                        <i class="fas fa-redo"></i> Reset Form
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Deposits Management -->
+        <div class="tab-pane fade" id="depositsPanel">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light border-bottom">
+                    <h5 class="mb-0">
+                        <i class="fas fa-gem"></i> Mineral Deposits Management
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-4">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Manage mineral deposits imported from QGIS. View full details, edit geological data, and delete entries.
+                    </p>
+                    <a href="/admin/deposits" class="btn btn-primary btn-lg">
+                        <i class="fas fa-database me-2"></i>Full Deposits Management
+                    </a>
+                    <a href="/map/deposits" class="btn btn-outline-primary btn-lg ms-2" target="_blank">
+                        <i class="fas fa-map me-2"></i>View Deposits Map
+                    </a>
+                </div>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-header bg-light border-bottom">
+                    <h5 class="mb-0">
+                        <i class="fas fa-certificate"></i> Mining Claims Management
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-4">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Manage mining claims imported from QGIS. Edit claim details, link to deposits, and manage status.
+                    </p>
+                    <a href="/admin/claims" class="btn btn-success btn-lg">
+                        <i class="fas fa-database me-2"></i>Full Claims Management
+                    </a>
+                    <a href="/map/claims" class="btn btn-outline-success btn-lg ms-2" target="_blank">
+                        <i class="fas fa-map me-2"></i>View Claims Map
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Users Management -->
+        <div class="tab-pane fade" id="usersPanel">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light border-bottom">
+                    <div class="row align-items-center">
+                        <div class="col">
+                            <h5 class="mb-0">
+                                <i class="fas fa-users"></i> System Users
+                            </h5>
+                        </div>
+                        <div class="col-auto">
+                            <button class="btn btn-sm btn-primary">
+                                <i class="fas fa-user-plus"></i> Add User
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Status</th>
+                                <th>Last Login</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>admin_user</strong></td>
+                                <td>admin@example.com</td>
+                                <td><span class="badge bg-danger">Admin</span></td>
+                                <td><span class="badge bg-success">Active</span></td>
+                                <td>Today at 10:30 AM</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><strong>geologist_01</strong></td>
+                                <td>geo@example.com</td>
+                                <td><span class="badge bg-info">Geologist</span></td>
+                                <td><span class="badge bg-success">Active</span></td>
+                                <td>Yesterday at 3:15 PM</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- QGIS Data Import -->
+        <div class="tab-pane fade" id="geospatialPanel">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light border-bottom">
+                    <h5 class="mb-0">
+                        <i class="fas fa-map"></i> QGIS Data Import & Management
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-4">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Import mineral deposits and mining claims directly from QGIS. Supports GeoJSON, CSV, and Shapefile formats.
+                    </p>
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="card border-primary">
+                                <div class="card-header bg-primary text-white">
+                                    <h6 class="mb-0">
+                                        <i class="fas fa-gem"></i> Import Deposits
+                                    </h6>
+                                </div>
+                                <div class="card-body text-center">
+                                    <p class="text-muted mb-3">Add mineral deposits to populate the deposits map</p>
+                                    <a href="/admin/geospatial" class="btn btn-primary">
+                                        <i class="fas fa-cloud-upload-alt me-2"></i>Go to Deposits Import
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card border-warning">
+                                <div class="card-header bg-warning text-dark">
+                                    <h6 class="mb-0">
+                                        <i class="fas fa-certificate"></i> Import Claims
+                                    </h6>
+                                </div>
+                                <div class="card-body text-center">
+                                    <p class="text-muted mb-3">Add mining claims to populate the claims map</p>
+                                    <a href="/admin/geospatial" class="btn btn-warning">
+                                        <i class="fas fa-cloud-upload-alt me-2"></i>Go to Claims Import
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Learning Content Management -->
+        <div class="tab-pane fade" id="learningPanel">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header bg-light border-bottom">
+                            <h5 class="mb-0"><i class="fas fa-book text-primary me-2"></i>Learning Modules</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted">Manage geology and mineral educational content available to all users.</p>
+                            <a href="/admin/learning" class="btn btn-primary btn-block w-100">
+                                <i class="fas fa-list me-2"></i>Manage Learning Content
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header bg-light border-bottom">
+                            <h5 class="mb-0"><i class="fas fa-plus text-success me-2"></i>Add New Lesson</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted">Create new lessons about geology, minerals, and natural resources.</p>
+                            <a href="/admin/learning/add" class="btn btn-success btn-block w-100">
+                                <i class="fas fa-pen-fancy me-2"></i>Create Lesson
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-light border-bottom">
+                            <h5 class="mb-0"><i class="fas fa-globe me-2"></i>Public Learning Center</h5>
+                        </div>
+                        <div class="card-body">
+                            <p class="text-muted mb-3">Visit the public learning center to see how users experience the content.</p>
+                            <a href="/learn" class="btn btn-outline-primary" target="_blank">
+                                <i class="fas fa-external-link-alt me-2"></i>View Public Learning Center
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Settings -->
+        <div class="tab-pane fade" id="systemPanel">
+            <div class="card shadow-sm">
+                <div class="card-header bg-light border-bottom">
+                    <h5 class="mb-0">
+                        <i class="fas fa-cog"></i> System Settings
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row g-4">
+                        <!-- General Settings -->
+                        <div class="col-md-6">
+                            <h6 class="fw-bold mb-3">General Settings</h6>
+                            <div class="mb-3">
+                                <label class="form-label">Site Name</label>
+                                <input type="text" class="form-control" value="GeoResource Explorer">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Maintenance Mode</label>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="maintenanceToggle">
+                                    <label class="form-check-label" for="maintenanceToggle">
+                                        Enable maintenance mode
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Database Settings -->
+                        <div class="col-md-6">
+                            <h6 class="fw-bold mb-3">Database & Backup</h6>
+                            <div class="btn-group w-100" role="group">
+                                <button type="button" class="btn btn-outline-success">
+                                    <i class="fas fa-download"></i> Backup Database
+                                </button>
+                                <button type="button" class="btn btn-outline-primary">
+                                    <i class="fas fa-upload"></i> Restore
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <!-- Security Settings -->
+                    <h6 class="fw-bold mb-3">Security</h6>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">API Keys</label>
+                            <div class="input-group">
+                                <input type="password" class="form-control" value="••••••••••••••••">
+                                <button class="btn btn-outline-secondary" type="button">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Session Timeout (minutes)</label>
+                            <input type="number" class="form-control" value="30" min="5" max="480">
+                        </div>
+                    </div>
+
+                    <div class="mt-4">
+                        <button class="btn btn-primary">
+                            <i class="fas fa-save"></i> Save Settings
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Styles -->
+<style>
+.bg-gradient {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.text-white-50 {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.border-left-primary {
+    border-left: 4px solid #667eea !important;
+}
+
+.border-left-success {
+    border-left: 4px solid #28a745 !important;
+}
+
+.border-left-warning {
+    border-left: 4px solid #ffc107 !important;
+}
+
+.border-left-info {
+    border-left: 4px solid #17a2b8 !important;
+}
+
+.nav-tabs .nav-link {
+    color: #667eea;
+    border-bottom: 3px solid transparent;
+}
+
+.nav-tabs .nav-link.active {
+    color: #667eea;
+    border-bottom-color: #667eea;
+}
+
+@media (max-width: 768px) {
+    .nav-tabs {
+        flex-wrap: wrap;
+    }
+    
+    .nav-tabs .nav-link {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.9rem;
+    }
+}
+</style>
+
+<!-- Scripts -->
+<script>
+(() => {
+    'use strict';
+    const forms = document.querySelectorAll('.needs-validation');
+    Array.from(forms).forEach(form => {
+        form.addEventListener('submit', event => {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+            form.classList.add('was-validated');
+        }, false);
+    });
+})();
+</script>
+{% endblock %}
